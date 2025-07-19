@@ -4,7 +4,6 @@ import { Model } from 'mongoose';
 import { Transaction, TransactionDocument } from './schemas/transaction.schema';
 import { UpdateTransactionInput } from './dto/update-transaction.input';
 import { CreateTransactionInput } from './dto/create-transaction.input';
-// 1. Importe o modelo da Categoria
 import {
   Category,
   CategoryDocument,
@@ -15,7 +14,6 @@ export class TransactionsService {
   constructor(
     @InjectModel(Transaction.name)
     private transactionModel: Model<TransactionDocument>,
-    // 2. Injete o CategoryModel para que possamos usá-lo
     @InjectModel(Category.name)
     private categoryModel: Model<CategoryDocument>,
   ) {}
