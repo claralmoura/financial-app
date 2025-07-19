@@ -1,0 +1,1 @@
+export const localStorageKey = 'auth_token';

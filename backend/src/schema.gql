@@ -1,0 +1,127 @@
+# ------------------------------------------------------
+# THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
+# ------------------------------------------------------
+
+type AuthPayload {
+  access_token: String!
+}
+
+type CategoryEntity {
+  _id: ID!
+  name: String!
+  type: String!
+}
+
+input CreateCategoryInput {
+  name: String!
+  type: String!
+}
+
+input CreateTransactionInput {
+  categoryId: ID
+
+  """Data da transação (opcional)"""
+  date: DateTime
+
+  """Descrição da transação"""
+  description: String!
+
+  """Tipo (income ou expense)"""
+  type: String!
+
+  """Valor da transação"""
+  value: Float!
+}
+
+input CreateUserInput {
+  """Email do usuário (deve ser único)"""
+  email: String!
+
+  """Nome do usuário"""
+  name: String!
+
+  """Senha do usuário (mínimo de 8 caracteres)"""
+  password: String!
+}
+
+"""
+A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
+"""
+scalar DateTime
+
+input LoginInput {
+  email: String!
+  password: String!
+}
+
+type Mutation {
+  createCategory(input: CreateCategoryInput!): CategoryEntity!
+  createTransaction(input: CreateTransactionInput!): TransactionEntity!
+  deleteTransaction(id: ID!): TransactionEntity!
+  login(input: LoginInput!): AuthPayload!
+  register(input: CreateUserInput!): UserEntity!
+  removeCategory(id: ID!): CategoryEntity!
+  updateCategory(input: UpdateCategoryInput!): CategoryEntity!
+  updateTransaction(input: UpdateTransactionInput!): TransactionEntity!
+}
+
+type Query {
+  categories: [CategoryEntity!]!
+  me: UserEntity!
+  transactions: [TransactionEntity!]!
+}
+
+type TransactionEntity {
+  """ID único da transação"""
+  _id: ID!
+  category: CategoryEntity
+
+  """Data da transação"""
+  date: DateTime!
+
+  """Descrição da transação"""
+  description: String!
+
+  """Tipo (income ou expense)"""
+  type: String!
+
+  """ID do usuário dono da transação"""
+  userId: ID!
+
+  """Valor da transação"""
+  value: Float!
+}
+
+input UpdateCategoryInput {
+  id: ID!
+  name: String
+  type: String
+}
+
+input UpdateTransactionInput {
+  categoryId: ID
+
+  """Data da transação (opcional)"""
+  date: DateTime
+
+  """Descrição da transação"""
+  description: String
+  id: ID!
+
+  """Tipo (income ou expense)"""
+  type: String
+
+  """Valor da transação"""
+  value: Float
+}
+
+type UserEntity {
+  """ID único do usuário"""
+  _id: ID!
+
+  """Email do usuário"""
+  email: String!
+
+  """Nome do usuário"""
+  name: String!
+}
