@@ -50,7 +50,7 @@ Aplicação full-stack de gerenciamento financeiro pessoal, desenvolvida para pr
 1. **Clone o repositório:**
    ```bash
    git clone [https://github.com/claralmoura/financial-app.git](https://github.com/claralmoura/financial-app.git)
-   cd app-financas-pessoais
+   cd financial-app
    ```
 
 2. **Setup do Backend:**
