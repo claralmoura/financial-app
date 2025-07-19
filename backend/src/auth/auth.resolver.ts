@@ -2,6 +2,7 @@ import { Resolver, Mutation, Args } from '@nestjs/graphql';
 import { AuthService } from './auth.service';
 import { UsersService } from 'src/users/users.service';
 import { CreateUserInput } from 'src/users/dto/create-user.input';
+import { UpdateUserInput } from 'src/users/dto/update-user.input';
 import { AuthPayload } from './dto/auth.payload';
 import { LoginInput } from './dto/login.input';
 import { UnauthorizedException } from '@nestjs/common';
@@ -35,6 +36,15 @@ export class AuthResolver {
   @Mutation(() => UserEntity, { name: 'register' })
   async register(@Args('input') createUserInput: CreateUserInput) {
     return this.usersService.create(createUserInput);
+  }
+
+  @Mutation(() => UserEntity, { name: 'updateProfile' })
+  @UseGuards(JwtAuthGuard)
+  updateProfile(
+    @CurrentUser() user: any,
+    @Args('input') updateUserInput: UpdateUserInput,
+  ) {
+    return this.usersService.update(user.userId, updateUserInput);
   }
 
   @Query(() => UserEntity, { name: 'me' })

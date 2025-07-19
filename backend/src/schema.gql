@@ -62,6 +62,7 @@ type Mutation {
   register(input: CreateUserInput!): UserEntity!
   removeCategory(id: ID!): CategoryEntity!
   updateCategory(input: UpdateCategoryInput!): CategoryEntity!
+  updateProfile(input: UpdateUserInput!): UserEntity!
   updateTransaction(input: UpdateTransactionInput!): TransactionEntity!
 }
 
@@ -113,6 +114,12 @@ input UpdateTransactionInput {
 
   """Valor da transação"""
   value: Float
+}
+
+input UpdateUserInput {
+  email: String
+  name: String
+  password: String
 }
 
 type UserEntity {

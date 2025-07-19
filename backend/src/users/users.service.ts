@@ -1,7 +1,12 @@
-import { Injectable } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  ConflictException,
+} from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { CreateUserInput } from './dto/create-user.input';
+import { UpdateUserInput } from './dto/update-user.input';
 import { User, UserDocument } from './schemas/user.schema';
 
 @Injectable()
@@ -19,5 +24,36 @@ export class UsersService {
 
   async findOneById(id: string): Promise<User> {
     return this.userModel.findById(id).exec();
+  }
+
+  async update(
+    userId: string,
+    updateUserInput: UpdateUserInput,
+  ): Promise<User> {
+    const user = await this.userModel.findById(userId);
+
+    if (!user) {
+      throw new NotFoundException('Usuário não encontrado.');
+    }
+
+    if (updateUserInput.email && updateUserInput.email !== user.email) {
+      const existingUser = await this.userModel.findOne({
+        email: updateUserInput.email,
+      });
+      if (existingUser) {
+        throw new ConflictException('Este email já está em uso.');
+      }
+      user.email = updateUserInput.email;
+    }
+
+    if (updateUserInput.name) {
+      user.name = updateUserInput.name;
+    }
+
+    if (updateUserInput.password) {
+      user.password = updateUserInput.password;
+    }
+
+    return user.save();
   }
 }
