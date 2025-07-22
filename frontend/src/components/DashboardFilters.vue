@@ -1,33 +1,35 @@
 <template>
-  <div class="flex flex-wrap items-center gap-4 mb-8 p-4 bg-white rounded-lg shadow-md">
-    <el-radio-group v-model="filterPeriod">
-      <el-radio-button value="week">Semana</el-radio-button>
-      <el-radio-button value="month">Mês</el-radio-button>
-      <el-radio-button value="year">Ano</el-radio-button>
-    </el-radio-group>
+  <div class="mb-8 p-4 bg-white dark:bg-gray-800 rounded-lg shadow-md">
+    <div class="flex flex-wrap items-center gap-4">
+      <el-radio-group v-model="filterPeriod">
+        <el-radio-button value="week">Semana</el-radio-button>
+        <el-radio-button value="month">Mês</el-radio-button>
+        <el-radio-button value="year">Ano</el-radio-button>
+      </el-radio-group>
 
-    <el-date-picker
-      v-if="filterPeriod === 'week'"
-      v-model="selectedDate"
-      type="week"
-      format="[Semana] ww"
-      placeholder="Selecione a semana"
-      :clearable="false"
-    />
-    <el-date-picker
-      v-if="filterPeriod === 'month'"
-      v-model="selectedDate"
-      type="month"
-      placeholder="Selecione o mês"
-      :clearable="false"
-    />
-    <el-date-picker
-      v-if="filterPeriod === 'year'"
-      v-model="selectedDate"
-      type="year"
-      placeholder="Selecione o ano"
-      :clearable="false"
-    />
+      <el-date-picker
+        v-if="filterPeriod === 'week'"
+        v-model="selectedDate"
+        type="week"
+        format="[Semana] ww"
+        placeholder="Selecione a semana"
+        :clearable="false"
+      />
+      <el-date-picker
+        v-if="filterPeriod === 'month'"
+        v-model="selectedDate"
+        type="month"
+        placeholder="Selecione o mês"
+        :clearable="false"
+      />
+      <el-date-picker
+        v-if="filterPeriod === 'year'"
+        v-model="selectedDate"
+        type="year"
+        placeholder="Selecione o ano"
+        :clearable="false"
+      />
+    </div>
   </div>
 </template>
 

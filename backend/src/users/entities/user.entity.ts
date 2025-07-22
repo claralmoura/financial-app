@@ -10,4 +10,7 @@ export class UserEntity {
 
   @Field(() => String, { description: 'Email do usuário' })
   email: string;
+
+  @Field()
+  notificationsEnabled: boolean;
 }

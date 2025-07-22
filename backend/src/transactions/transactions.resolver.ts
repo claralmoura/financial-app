@@ -1,7 +1,16 @@
 import { CurrentUser } from 'src/auth/current-user.decorator';
-import { Resolver, Query, Mutation, Args, ID } from '@nestjs/graphql';
+import {
+  Resolver,
+  Query,
+  Mutation,
+  Args,
+  ID,
+  Parent,
+  ResolveField,
+} from '@nestjs/graphql';
 import { TransactionsService } from './transactions.service';
 import { TransactionEntity } from './entities/transaction.entity';
+import { CardInvoiceEntity } from 'src/card-invoices/entities/card-invoice.entity';
 import { CreateTransactionInput } from './dto/create-transaction.input';
 import { UpdateTransactionInput } from './dto/update-transaction.input';
 import { UseGuards } from '@nestjs/common';
@@ -23,6 +32,11 @@ export class TransactionsResolver {
   @Query(() => [TransactionEntity], { name: 'transactions' })
   findAll(@CurrentUser() user: any) {
     return this.transactionsService.findAll(user.userId);
+  }
+
+  @ResolveField('cardInvoice', () => CardInvoiceEntity, { nullable: true })
+  getCardInvoice(@Parent() transaction: any) {
+    return transaction.cardInvoice;
   }
 
   @Mutation(() => TransactionEntity, { name: 'updateTransaction' })

@@ -2,8 +2,22 @@
 # THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
 # ------------------------------------------------------
 
+input AddToGoalInput {
+  id: ID!
+  value: Float!
+}
+
 type AuthPayload {
   access_token: String!
+}
+
+type CardInvoiceEntity {
+  _id: ID!
+  creditCard: CreditCardEntity
+  month: Int!
+  status: String!
+  transactions: [TransactionEntity!]!
+  year: Int!
 }
 
 type CategoryEntity {
@@ -17,7 +31,26 @@ input CreateCategoryInput {
   type: String!
 }
 
+input CreateCreditCardInput {
+  closingDay: Int!
+  dueDay: Int!
+  name: String!
+}
+
+input CreateFixedExpenseInput {
+  categoryId: ID!
+  description: String!
+  dueDate: Int!
+  value: Float!
+}
+
+input CreateGoalInput {
+  name: String!
+  targetValue: Float!
+}
+
 input CreateTransactionInput {
+  cardInvoiceId: ID
   categoryId: ID
 
   """Data da transação (opcional)"""
@@ -44,10 +77,37 @@ input CreateUserInput {
   password: String!
 }
 
+type CreditCardEntity {
+  _id: ID!
+  closingDay: Int
+  dueDay: Int
+  name: String
+}
+
 """
 A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
 """
 scalar DateTime
+
+type FixedExpenseEntity {
+  _id: ID!
+  category: CategoryEntity!
+  description: String!
+  dueDate: Int!
+  isActive: Boolean!
+  value: Float!
+}
+
+type ForgotPasswordResponse {
+  message: String!
+}
+
+type GoalEntity {
+  _id: ID!
+  currentValue: Float!
+  name: String!
+  targetValue: Float!
+}
 
 input LoginInput {
   email: String!
@@ -55,26 +115,53 @@ input LoginInput {
 }
 
 type Mutation {
+  addToGoal(input: AddToGoalInput!): GoalEntity!
   createCategory(input: CreateCategoryInput!): CategoryEntity!
+  createCreditCard(input: CreateCreditCardInput!): CreditCardEntity!
+  createFixedExpense(input: CreateFixedExpenseInput!): FixedExpenseEntity!
+  createGoal(input: CreateGoalInput!): GoalEntity!
   createTransaction(input: CreateTransactionInput!): TransactionEntity!
   deleteTransaction(id: ID!): TransactionEntity!
+  forgotPassword(email: String!): ForgotPasswordResponse!
   login(input: LoginInput!): AuthPayload!
   register(input: CreateUserInput!): UserEntity!
   removeCategory(id: ID!): CategoryEntity!
+  removeCreditCard(id: ID!): CreditCardEntity!
+  removeFixedExpense(id: ID!): FixedExpenseEntity!
+  removeGoal(id: ID!): GoalEntity!
+  resetPassword(input: ResetPasswordInput!): ResetPasswordResponse!
   updateCategory(input: UpdateCategoryInput!): CategoryEntity!
+  updateCreditCard(input: UpdateCreditCardInput!): CreditCardEntity!
+  updateFixedExpense(input: UpdateFixedExpenseInput!): FixedExpenseEntity!
+  updateGoal(input: UpdateGoalInput!): GoalEntity!
   updateProfile(input: UpdateUserInput!): UserEntity!
   updateTransaction(input: UpdateTransactionInput!): TransactionEntity!
 }
 
 type Query {
+  cardInvoices(creditCardId: ID): [CardInvoiceEntity!]!
   categories: [CategoryEntity!]!
+  creditCard(id: ID!): CreditCardEntity!
+  creditCards: [CreditCardEntity!]!
+  fixedExpenses: [FixedExpenseEntity!]!
+  goals: [GoalEntity!]!
   me: UserEntity!
   transactions: [TransactionEntity!]!
+}
+
+input ResetPasswordInput {
+  password: String!
+  token: String!
+}
+
+type ResetPasswordResponse {
+  message: String!
 }
 
 type TransactionEntity {
   """ID único da transação"""
   _id: ID!
+  cardInvoice: CardInvoiceEntity
   category: CategoryEntity
 
   """Data da transação"""
@@ -99,7 +186,30 @@ input UpdateCategoryInput {
   type: String
 }
 
+input UpdateCreditCardInput {
+  closingDay: Int
+  dueDay: Int
+  id: ID!
+  name: String
+}
+
+input UpdateFixedExpenseInput {
+  categoryId: ID
+  description: String
+  dueDate: Int
+  id: ID!
+  isActive: Boolean
+  value: Float
+}
+
+input UpdateGoalInput {
+  id: ID!
+  name: String
+  targetValue: Float
+}
+
 input UpdateTransactionInput {
+  cardInvoiceId: ID
   categoryId: ID
 
   """Data da transação (opcional)"""
@@ -119,6 +229,7 @@ input UpdateTransactionInput {
 input UpdateUserInput {
   email: String
   name: String
+  notificationsEnabled: Boolean
   password: String
 }
 
@@ -131,4 +242,5 @@ type UserEntity {
 
   """Nome do usuário"""
   name: String!
+  notificationsEnabled: Boolean!
 }

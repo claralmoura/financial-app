@@ -1,7 +1,7 @@
 <template>
   <div class="p-8 font-sans">
     <header class="flex justify-between items-center mb-10">
-      <h1 class="text-3xl font-bold text-gray-800">Gerenciar Categorias</h1>
+      <h1 class="text-3xl font-bold text-gray-800 dark:text-gray-100">Gerenciar Categorias</h1>
       <el-button type="primary" @click="openCreateDialog">
         <div class="flex items-center gap-2">
           <svg :width="20" :height="20" viewBox="0 0 24 24"><path :d="mdiPlus" fill="currentColor" /></svg>
@@ -11,7 +11,7 @@
     </header>
 
     <main>
-      <el-card shadow="never" class="bg-white">
+      <el-card shadow="never" class="bg-white dark:bg-gray-800">
         <el-table :data="categories" v-loading="loading" empty-text="Nenhuma categoria encontrada.">
           <el-table-column prop="name" label="Nome" sortable />
           <el-table-column prop="type" label="Tipo" width="150" align="center">
@@ -57,6 +57,13 @@ import { ElMessage, ElMessageBox } from 'element-plus';
 import { mdiPencil, mdiDelete, mdiPlus } from '@mdi/js';
 import CategoryFormModal from '../components/CategoryFormModal.vue';
 
+import { CATEGORIES_QUERY } from '../apollo/queries/categories';
+import { 
+  CREATE_CATEGORY_MUTATION, 
+  UPDATE_CATEGORY_MUTATION, 
+  REMOVE_CATEGORY_MUTATION 
+} from '../apollo/mutations/categories';
+
 const isDialogVisible = ref(false);
 const isEditMode = ref(false);
 const form = reactive({
@@ -64,27 +71,6 @@ const form = reactive({
   name: '',
   type: 'expense' as 'income' | 'expense',
 });
-
-const CATEGORIES_QUERY = gql`
-  query Categories {
-    categories { _id name type }
-  }
-`;
-const CREATE_CATEGORY_MUTATION = gql`
-  mutation CreateCategory($input: CreateCategoryInput!) {
-    createCategory(input: $input) { _id }
-  }
-`;
-const UPDATE_CATEGORY_MUTATION = gql`
-  mutation UpdateCategory($input: UpdateCategoryInput!) {
-    updateCategory(input: $input) { _id }
-  }
-`;
-const REMOVE_CATEGORY_MUTATION = gql`
-  mutation RemoveCategory($id: ID!) {
-    removeCategory(id: $id) { _id }
-  }
-`;
 
 const { result, loading } = useQuery<{ categories: Category[] }>(CATEGORIES_QUERY);
 const { mutate: createCategory, loading: createLoading } = useMutation(CREATE_CATEGORY_MUTATION, { refetchQueries: [{ query: CATEGORIES_QUERY }] });

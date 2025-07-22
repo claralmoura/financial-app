@@ -1,36 +1,14 @@
 <template>
-  <el-card shadow="never" class="bg-white">
+  <el-card shadow="never" class="bg-white dark:bg-gray-800">
     <div class="flex flex-col md:flex-row md:justify-between md:items-center gap-4 mb-6">
-      <h2 class="text-2xl font-semibold text-gray-800">Suas Transações</h2>
-      
+      <h2 class="text-2xl font-semibold text-gray-800 dark:text-gray-100 shrink-0">Suas Transações</h2>
       <div class="flex flex-col sm:flex-row gap-4 w-full md:w-auto">
-        <el-input
-          v-model="searchQuery"
-          placeholder="Buscar por descrição..."
-          clearable
-          class="w-full sm:w-64"
-        >
-          <template #prefix>
-            <el-icon><svg viewBox="0 0 24 24"><path :d="mdiMagnify" fill="currentColor" /></svg></el-icon>
-          </template>
-        </el-input>
-
-        <el-select
-          v-model="selectedCategories"
-          multiple
-          clearable
-          placeholder="Filtrar por categoria"
-          class="w-full sm:w-64"
-        >
-          <el-option
-            v-for="category in categories"
-            :key="category._id"
-            :label="category.name"
-            :value="category._id"
-          />
+        <el-input v-model="searchQuery" placeholder="Buscar por descrição..." clearable class="w-full sm:w-56" />
+        <el-select v-model="selectedCategories" multiple clearable placeholder="Filtrar por categoria" class="w-full sm:w-56">
+          <el-option v-for="category in categories" :key="category._id" :label="category.name" :value="category._id" />
         </el-select>
-        <el-button type="primary" @click="$emit('create-transaction')">
-          <div class="flex items-center gap-2">
+        <el-button type="primary" @click="$emit('create-transaction')" class="w-full sm:w-auto">
+          <div class="flex items-center gap-2 justify-center">
             <svg :width="20" :height="20" viewBox="0 0 24 24"><path :d="mdiPlus" fill="currentColor" /></svg>
             <span class="hidden sm:block">Adicionar</span>
           </div>
@@ -38,29 +16,33 @@
       </div>
     </div>
 
-    <el-table 
-      :data="filteredTransactions"
-      :loading="loading" 
-      empty-text="Nenhuma transação encontrada."
-      class="hidden md:table w-full"
-    >
+    <el-table :data="filteredTransactions" :loading="loading" empty-text="Nenhuma transação encontrada." class="hidden md:table w-full">
       <el-table-column prop="date" label="Data" sortable width="140">
         <template #default="scope">
           <span>{{ formatDate(scope.row.date) }}</span>
         </template>
       </el-table-column>
-
       <el-table-column prop="description" label="Descrição" />
-
+      <el-table-column label="Tipo / Fonte" width="200">
+        <template #default="scope">
+          <div class="flex flex-col">
+            <el-tag :type="getTransactionType(scope.row.type).type" effect="light" size="small" class="w-fit">
+              {{ getTransactionType(scope.row.type).label }}
+            </el-tag>
+            <span v-if="scope.row.type === 'card_expense'" class="text-xs text-gray-500 mt-1">
+              {{ scope.row.cardInvoice?.creditCard?.name }}
+            </span>
+          </div>
+        </template>
+      </el-table-column>
       <el-table-column label="Categoria" width="150" align="center">
         <template #default="scope">
-          <el-tag v-if="scope.row.category" effect="light" size="small">
+          <el-tag v-if="scope.row.category" effect="plain" size="small">
             {{ scope.row.category.name }}
           </el-tag>
           <span v-else class="text-gray-400">—</span>
         </template>
       </el-table-column>
-
       <el-table-column prop="value" label="Valor" sortable align="right">
         <template #default="scope">
           <span :class="scope.row.type === 'income' ? 'text-green-500' : 'text-red-500'" class="font-bold">
@@ -68,7 +50,6 @@
           </span>
         </template>
       </el-table-column>
-
       <el-table-column label="Ações" width="120" align="center">
         <template #default="scope">
           <div class="flex gap-2 justify-center">
@@ -85,15 +66,20 @@
 
     <div class="md:hidden space-y-4">
       <div v-if="loading">Carregando...</div>
-      <div v-if="!loading && filteredTransactions.length === 0" class="text-center text-gray-500 py-10">Nenhuma transação encontrada.</div>
-      <el-card v-for="item in filteredTransactions" :key="item._id" shadow="never" class="bg-gray-50">
+      <div v-if="!loading && !filteredTransactions.length" class="text-center text-gray-500 py-10">Nenhuma transação encontrada.</div>
+      <el-card v-for="item in filteredTransactions" :key="item._id" shadow="never" class="bg-gray-50 dark:bg-gray-700">
         <div class="flex justify-between items-start">
           <div class="flex-1">
-            <p class="font-semibold text-gray-800">{{ item.description }}</p>
-            <p class="text-sm text-gray-500">{{ formatDate(item.date) }}</p>
-            <el-tag v-if="item.category" effect="light" size="small" class="mt-2">
-              {{ item.category.name }}
-            </el-tag>
+            <p class="font-semibold text-gray-800 dark:text-gray-100">{{ item.description }}</p>
+            <p class="text-sm text-gray-500 dark:text-gray-400">{{ formatDate(item.date) }}</p>
+            <div class="mt-2">
+              <el-tag :type="getTransactionType(item.type).type" effect="light" size="small">
+                {{ getTransactionType(item.type).label }}
+              </el-tag>
+              <p v-if="item.type === 'card_expense'" class="text-xs text-gray-500 mt-1">
+                {{ item.cardInvoice?.creditCard?.name }}
+              </p>
+            </div>
           </div>
           <div class="flex flex-col items-end">
             <span :class="item.type === 'income' ? 'text-green-500' : 'text-red-500'" class="font-bold text-lg">
@@ -116,8 +102,9 @@
 
 <script setup lang="ts">
 import { ref, computed } from 'vue';
-import { mdiPencil, mdiDelete, mdiPlus, mdiMagnify } from '@mdi/js';
+import { mdiPencil, mdiDelete, mdiPlus } from '@mdi/js';
 import type { Transaction, Category } from '../types';
+import { formatDate } from '@/utils/formatters';
 import { ElButton, ElIcon } from 'element-plus';
 
 const props = defineProps<{
@@ -138,25 +125,24 @@ const selectedCategories = ref<string[]>([]);
 const filteredTransactions = computed(() => {
   let filtered = props.transactions;
 
-  if (searchQuery.value) {
+  if (searchQuery?.value) {
     filtered = filtered.filter(t =>
       t.description.toLowerCase().includes(searchQuery.value.toLowerCase())
     );
   }
-
-  if (selectedCategories.value.length) {
+  if (selectedCategories?.value?.length) {
     filtered = filtered.filter(t => 
-      t.category?._id && selectedCategories.value.includes(t.category._id)
+      t.categoryId && selectedCategories.value.includes(t.categoryId)
     );
   }
 
   return filtered;
 });
 
-const formatDate = (dateString: string | undefined | null) => {
-  if (!dateString) return '—';
-  const date = new Date(dateString);
-  if (isNaN(date.getTime())) return 'Data inválida';
-  return new Intl.DateTimeFormat('pt-BR').format(date);
+const getTransactionType = (type: Transaction['type']) => {
+  if (type === 'income') return { label: 'Receita', type: 'success' };
+  if (type === 'expense') return { label: 'Despesa', type: 'danger' };
+  if (type === 'card_expense') return { label: 'Cartão de Crédito', type: 'warning' };
+  return { label: 'N/A', type: 'info' };
 };
 </script>

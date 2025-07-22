@@ -1,5 +1,6 @@
 import { ObjectType, Field, ID, Float } from '@nestjs/graphql';
 import { CategoryEntity } from 'src/categories/entities/category.entity';
+import { CardInvoiceEntity } from 'src/card-invoices/entities/card-invoice.entity';
 
 @ObjectType()
 export class TransactionEntity {
@@ -13,7 +14,7 @@ export class TransactionEntity {
   value: number;
 
   @Field(() => String, { description: 'Tipo (income ou expense)' })
-  type: 'income' | 'expense';
+  type: string;
 
   @Field(() => Date, { description: 'Data da transação' })
   date: Date;
@@ -23,4 +24,7 @@ export class TransactionEntity {
 
   @Field(() => ID, { description: 'ID do usuário dono da transação' })
   userId: string;
+
+  @Field(() => CardInvoiceEntity, { nullable: true })
+  cardInvoice?: CardInvoiceEntity;
 }

@@ -14,6 +14,15 @@ export class User {
 
   @Prop({ required: true })
   password: string;
+
+  @Prop({ type: String, required: false })
+  passwordResetToken?: string;
+
+  @Prop({ type: Date, required: false })
+  passwordResetExpires?: Date;
+
+  @Prop({ type: Boolean, default: true })
+  notificationsEnabled: boolean;
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);

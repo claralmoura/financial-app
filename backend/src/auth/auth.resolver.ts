@@ -1,4 +1,11 @@
-import { Resolver, Mutation, Args } from '@nestjs/graphql';
+import {
+  Resolver,
+  Mutation,
+  Args,
+  ObjectType,
+  Field,
+  Query,
+} from '@nestjs/graphql';
 import { AuthService } from './auth.service';
 import { UsersService } from 'src/users/users.service';
 import { CreateUserInput } from 'src/users/dto/create-user.input';
@@ -10,7 +17,19 @@ import { UserEntity } from 'src/users/entities/user.entity';
 import { UseGuards } from '@nestjs/common';
 import { JwtAuthGuard } from './jwt-auth.guard';
 import { CurrentUser } from './current-user.decorator';
-import { Query } from '@nestjs/graphql';
+import { ResetPasswordInput } from './dto/reset-password.input';
+
+@ObjectType()
+class ForgotPasswordResponse {
+  @Field()
+  message: string;
+}
+
+@ObjectType()
+class ResetPasswordResponse {
+  @Field()
+  message: string;
+}
 
 @Resolver()
 export class AuthResolver {
@@ -51,5 +70,15 @@ export class AuthResolver {
   @UseGuards(JwtAuthGuard)
   me(@CurrentUser() user: any) {
     return this.usersService.findOneById(user.userId);
+  }
+
+  @Mutation(() => ForgotPasswordResponse, { name: 'forgotPassword' })
+  async forgotPassword(@Args('email') email: string) {
+    return this.authService.forgotPassword(email);
+  }
+
+  @Mutation(() => ResetPasswordResponse, { name: 'resetPassword' })
+  async resetPassword(@Args('input') resetPasswordInput: ResetPasswordInput) {
+    return this.authService.resetPassword(resetPasswordInput);
   }
 }

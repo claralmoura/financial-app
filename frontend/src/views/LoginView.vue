@@ -53,11 +53,18 @@
                 Entrar
               </el-button>
 
-              <!-- <div class="text-center mt-6">
-                <router-link to="/register" class="text-sm text-primary hover:underline">
-                  Não tem uma conta? Cadastre-se
-                </router-link>
-              </div> -->
+              <div class="text-center mt-6 space-y-2">
+                <p>
+                  <router-link to="/register" class="text-sm text-primary hover:underline">
+                    Não tem uma conta? Cadastre-se
+                  </router-link>
+                </p>
+                <p>
+                  <router-link to="/forgot-password" class="text-sm text-gray-500 hover:underline">
+                    Esqueceu sua senha?
+                  </router-link>
+                </p>
+              </div>
             </el-form>
           </div>
 
@@ -84,20 +91,14 @@ import { useAuthStore } from '../stores/auth';
 import { gql } from 'graphql-tag';
 import { mdiWallet, mdiAt, mdiLock } from '@mdi/js';
 
+import { LOGIN_MUTATION } from '../apollo/mutations/auth';
+
 const router = useRouter();
 const authStore = useAuthStore();
 const form = reactive({
   email: '',
   password: '',
 });
-
-const LOGIN_MUTATION = gql`
-  mutation Login($input: LoginInput!) {
-    login(input: $input) {
-      access_token
-    }
-  }
-`;
 
 const { mutate: login, loading, error, onDone } = useMutation(LOGIN_MUTATION, () => ({
   variables: {
