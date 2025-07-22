@@ -18,6 +18,9 @@ import { EmailModule } from './email/email.module';
 import { GoalsModule } from './goals/goals.module';
 import { NotificationsModule } from './notifications/notifications.module';
 
+import { AppController } from './app.controller';
+import { AppService } from './app.service';
+
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -80,7 +83,7 @@ import { NotificationsModule } from './notifications/notifications.module';
 
     NotificationsModule,
   ],
-  controllers: [],
-  providers: [],
+  controllers: [AppController],
+  providers: [AppService],
 })
 export class AppModule {}
