@@ -8,7 +8,7 @@ Aplicação full-stack de gerenciamento financeiro pessoal, desenvolvida com Nes
 
 ### 🚀 Acesse a Aplicação
 
-* **Frontend (Vercel):** [https://financial-app-ten-smoky.vercel.app/](https://financial-app-ten-smoky.vercel.app/)
+* **Frontend (Vercel):** [https://minhasfinancas-controle.vercel.app](https://minhasfinancas-controle.vercel.app)
 * **Backend (GraphQL Playground):** [https://financial-app-backend-st78.onrender.com](https://financial-app-backend-st78.onrender.com)
 
 ---
