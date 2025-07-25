@@ -4,8 +4,11 @@
       <nav class="container mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex items-center justify-between h-16">
           <div class="flex items-center">
-            <router-link to="/" class="font-bold text-xl text-primary">
-              Minhas Finanças
+            <router-link to="/" class="flex items-center gap-3">
+              <img :src="logo" alt="Minhas Finanças Logo" class="h-8 w-8">
+              <span class="font-bold text-xl text-dark dark:text-primary 0 hidden sm:block">
+                Minhas Finanças
+              </span>
             </router-link>
             <div class="hidden md:flex items-baseline space-x-1 ml-10">
               <router-link to="/" class="nav-link" active-class="nav-link-active">Dashboard</router-link>
@@ -83,6 +86,7 @@ import { mdiMenu, mdiWeatherNight, mdiWeatherSunny } from '@mdi/js';
 import { ArrowDown } from '@element-plus/icons-vue';
 import { gql } from 'graphql-tag';
 import { useDark, useToggle } from '@vueuse/core';
+import logo from '@/assets/logo.png';
 
 import { ME_QUERY } from '@/apollo/queries/user';
 
