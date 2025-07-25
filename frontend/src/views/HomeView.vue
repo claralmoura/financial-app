@@ -71,7 +71,7 @@ import { useRouter } from 'vue-router';
 import { useApolloClient, useQuery } from '@vue/apollo-composable';
 import { useAuthStore } from '../stores/auth';
 import { ElMessage, ElMessageBox } from 'element-plus';
-import type { Transaction } from '../types';
+import type { Transaction, Goal } from '../types';
 
 import DashboardFilters from '../components/DashboardFilters.vue';
 import DashboardSummary from '../components/DashboardSummary.vue';

@@ -125,22 +125,22 @@ const openSubtractDialog = (goal: Goal) => {
 
 const handleSubmit = async (formData: Partial<Goal>) => {
   if (!formData.name || !formData.targetValue || formData.targetValue <= 0) {
-    ElNotification({ title: 'Atenção', message: 'Preencha todos os campos corretamente.', type: 'warning' });
+    ElMessage.warning('Preencha todos os campos corretamente.');
     return;
   }
   try {
     if (isEditMode.value) {
       const input = { id: formData._id, name: formData.name, targetValue: formData.targetValue };
       await updateGoal({ input });
-      ElNotification({ title: 'Sucesso', message: 'Meta atualizada!', type: 'success' });
+      ElMessage.success('Meta atualizada!');
     } else {
       const input = { name: formData.name, targetValue: formData.targetValue };
       await createGoal({ input });
-      ElNotification({ title: 'Sucesso', message: 'Meta criada!', type: 'success' });
+      ElMessage.success('Meta criada!');
     }
     isDialogVisible.value = false;
   } catch (e: unknown) {
-    if (e instanceof Error) ElNotification({ title: 'Erro', message: e.message, type: 'error' });
+    if (e instanceof Error) ElMessage.error(e.message);
   }
 };
 
@@ -166,9 +166,9 @@ const handleDelete = (id: string) => {
   ).then(async () => {
     try {
       await removeGoal({ id });
-      ElNotification({ title: 'Sucesso', message: 'Meta excluída.', type: 'success' });
+      ElMessage.success('Meta excluída.');
     } catch (e: unknown) {
-      if (e instanceof Error) ElNotification({ title: 'Erro', message: e.message, type: 'error' });
+      if (e instanceof Error) ElMessage.error(e.message);
     }
   }).catch(() => {});
 };

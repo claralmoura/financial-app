@@ -67,7 +67,7 @@
 
     <div class="md:hidden space-y-4">
       <div v-if="loading">Carregando...</div>
-      <div v-if="!loading && !filteredTransactions.length" class="text-center text-gray-500 py-10">Nenhuma transação encontrada.</div>
+      <div v-if="!loading && !filteredTransactions?.length" class="text-center text-gray-500 py-10">Nenhuma transação encontrada.</div>
       <el-card v-for="item in filteredTransactions" :key="item._id" shadow="never" class="bg-gray-50 dark:bg-gray-700">
         <div class="flex justify-between items-start">
           <div class="flex-1">
@@ -128,13 +128,13 @@ const filteredTransactions = computed(() => {
   let filtered = props.transactions;
 
   if (searchQuery?.value) {
-    filtered = filtered.filter(t =>
+    filtered = filtered?.filter(t =>
       t.description.toLowerCase().includes(searchQuery.value.toLowerCase())
     );
   }
   if (selectedCategories?.value?.length) {
-    filtered = filtered.filter(t => 
-      t.category._id && selectedCategories.value.includes(t.category._id)
+    filtered = filtered?.filter(t => 
+      t.category?._id && selectedCategories.value.includes(t.category._id)
     );
   }
 
