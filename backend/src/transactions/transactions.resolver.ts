@@ -20,6 +20,15 @@ import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 @UseGuards(JwtAuthGuard)
 export class TransactionsResolver {
   constructor(private readonly transactionsService: TransactionsService) {}
+  @Query(() => [TransactionEntity], { name: 'transactions' })
+  findAll(@CurrentUser() user: any) {
+    return this.transactionsService.findAll(user.userId);
+  }
+
+  @Query(() => String, { name: 'exportTransactions' })
+  exportTransactions(@CurrentUser() user: any) {
+    return this.transactionsService.exportToCsv(user.userId);
+  }
 
   @Mutation(() => TransactionEntity, { name: 'createTransaction' })
   createTransaction(
@@ -27,16 +36,6 @@ export class TransactionsResolver {
     @Args('input') createTransactionInput: CreateTransactionInput,
   ) {
     return this.transactionsService.create(user.userId, createTransactionInput);
-  }
-
-  @Query(() => [TransactionEntity], { name: 'transactions' })
-  findAll(@CurrentUser() user: any) {
-    return this.transactionsService.findAll(user.userId);
-  }
-
-  @ResolveField('cardInvoice', () => CardInvoiceEntity, { nullable: true })
-  getCardInvoice(@Parent() transaction: any) {
-    return transaction.cardInvoice;
   }
 
   @Mutation(() => TransactionEntity, { name: 'updateTransaction' })
@@ -53,5 +52,10 @@ export class TransactionsResolver {
     @Args('id', { type: () => ID }) id: string,
   ) {
     return this.transactionsService.remove(user.userId, id);
+  }
+
+  @ResolveField('cardInvoice', () => CardInvoiceEntity, { nullable: true })
+  getCardInvoice(@Parent() transaction: any) {
+    return transaction.cardInvoice;
   }
 }

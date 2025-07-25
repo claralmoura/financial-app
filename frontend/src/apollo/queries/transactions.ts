@@ -22,3 +22,9 @@ export const TRANSACTIONS_QUERY = gql`
     }
   }
 `;
+
+export const EXPORT_TRANSACTIONS_QUERY = gql`
+  query ExportTransactions {
+    exportTransactions
+  }
+`;

@@ -5,6 +5,7 @@ import {
   ResolveField,
   ID,
   Args,
+  Mutation,
 } from '@nestjs/graphql';
 import { UseGuards } from '@nestjs/common';
 import { CardInvoicesService } from './card-invoices.service';
@@ -15,6 +16,7 @@ import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { CurrentUser } from 'src/auth/current-user.decorator';
 import { Transaction } from 'src/transactions/schemas/transaction.schema';
 import { CardInvoiceDocument } from './schemas/card-invoice.schema';
+import { CreateInvoiceInput } from './dto/create-invoice.input';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 
@@ -47,5 +49,13 @@ export class CardInvoicesResolver {
       .find({ cardInvoiceId: _id })
       .populate('categoryId')
       .exec();
+  }
+
+  @Mutation(() => CardInvoiceEntity, { name: 'createManualInvoice' })
+  createManualInvoice(
+    @CurrentUser() user: any,
+    @Args('input') input: CreateInvoiceInput,
+  ) {
+    return this.cardInvoicesService.createManual(user.userId, input);
   }
 }

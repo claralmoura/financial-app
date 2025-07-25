@@ -3,7 +3,11 @@ import { UseGuards } from '@nestjs/common';
 import { GoalsService } from './goals.service';
 import { GoalEntity } from './entities/goal.entity';
 import { CreateGoalInput } from './dto/create-goal.input';
-import { UpdateGoalInput, AddToGoalInput } from './dto/update-goal.input';
+import {
+  UpdateGoalInput,
+  AddToGoalInput,
+  SubtractFromGoalInput,
+} from './dto/update-goal.input';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { CurrentUser } from 'src/auth/current-user.decorator';
 
@@ -47,5 +51,16 @@ export class GoalsResolver {
   @Query(() => [GoalEntity], { name: 'goals' })
   findAll(@CurrentUser() user: any) {
     return this.goalsService.findAllByUserId(user.userId);
+  }
+
+  @Mutation(() => GoalEntity, { name: 'subtractFromGoal' })
+  subtractFromGoal(
+    @CurrentUser() user: any,
+    @Args('input') subtractFromGoalInput: SubtractFromGoalInput,
+  ) {
+    return this.goalsService.subtractFromGoal(
+      user.userId,
+      subtractFromGoalInput,
+    );
   }
 }

@@ -6,6 +6,9 @@
         <p class="text-sm text-gray-500">Alcançado</p>
       </div>
       <div class="flex gap-2">
+        <el-button circle plain type="warning" size="small" @click="$emit('subtract-contribution', goal)" :disabled="goal.currentValue <= 0" >
+          <el-icon><svg viewBox="0 0 24 24"><path :d="mdiMinus" fill="currentColor"/></svg></el-icon>
+        </el-button>
         <el-button circle plain type="success" size="small" @click="$emit('add-contribution', goal)">
           <el-icon><svg viewBox="0 0 24 24"><path :d="mdiPlus" fill="currentColor"/></svg></el-icon>
         </el-button>
@@ -29,7 +32,7 @@
 
 <script setup lang="ts">
 import { computed } from 'vue';
-import { mdiPencil, mdiDelete, mdiPlus } from '@mdi/js';
+import { mdiPencil, mdiDelete, mdiPlus, mdiMinus } from '@mdi/js';
 import type { Goal } from '../types';
 import { formatCurrency } from '@/utils/formatters';
 
@@ -41,6 +44,7 @@ defineEmits<{
   (e: 'edit', goal: Goal): void;
   (e: 'delete', id: string): void;
   (e: 'add-contribution', goal: Goal): void;
+  (e: 'subtract-contribution', goal: Goal): void;
 }>();
 
 const progressPercentage = computed(() => {

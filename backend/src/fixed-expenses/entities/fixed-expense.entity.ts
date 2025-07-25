@@ -18,6 +18,6 @@ export class FixedExpenseEntity {
   @Field()
   isActive: boolean;
 
-  @Field(() => CategoryEntity)
-  category: CategoryEntity;
+  @Field(() => CategoryEntity, { nullable: true })
+  category?: CategoryEntity;
 }

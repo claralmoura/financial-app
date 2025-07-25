@@ -23,6 +23,7 @@
           @edit="openEditDialog"
           @delete="handleDelete"
           @add-contribution="openContributionDialog"
+          @subtract-contribution="openSubtractDialog"
         />
       </div>
     </main>
@@ -39,8 +40,9 @@
     <GoalContributionModal
       v-if="selectedGoal"
       v-model:visible="isContributionDialogVisible"
-      :loading="addToGoalLoading"
+      :loading="addToGoalLoading || subtractFromGoalLoading"
       :goal-name="selectedGoal.name"
+      :mode="contributionMode"
       @submit="handleContributionSubmit"
     />
   </div>
@@ -51,7 +53,7 @@ import { ref, reactive, computed } from 'vue';
 import { useQuery, useMutation } from '@vue/apollo-composable';
 import { gql } from 'graphql-tag';
 import type { Goal } from '../types';
-import { ElNotification, ElMessageBox } from 'element-plus';
+import { ElMessage, ElMessageBox } from 'element-plus';
 import { mdiPlus } from '@mdi/js';
 import GoalCard from '../components/GoalCard.vue';
 import GoalFormModal from '../components/GoalFormModal.vue';
@@ -62,7 +64,8 @@ import {
   CREATE_GOAL_MUTATION,
   UPDATE_GOAL_MUTATION,
   REMOVE_GOAL_MUTATION,
-  ADD_TO_GOAL_MUTATION
+  ADD_TO_GOAL_MUTATION,
+  SUBTRACT_FROM_GOAL_MUTATION
 } from '../apollo/mutations/goals';
 
 const isDialogVisible = ref(false);
@@ -75,15 +78,18 @@ const form = reactive({
 
 const isContributionDialogVisible = ref(false);
 const selectedGoal = ref<Goal | null>(null);
+const contributionMode = ref<'add' | 'subtract'>('add');
 
 const { result, loading } = useQuery<{ goals: Goal[] }>(GOALS_QUERY);
 const { mutate: createGoal, loading: createLoading } = useMutation(CREATE_GOAL_MUTATION, { refetchQueries: [{ query: GOALS_QUERY }]});
 const { mutate: updateGoal, loading: updateLoading } = useMutation(UPDATE_GOAL_MUTATION, { refetchQueries: [{ query: GOALS_QUERY }]});
 const { mutate: removeGoal } = useMutation(REMOVE_GOAL_MUTATION, { refetchQueries: [{ query: GOALS_QUERY }]});
 const { mutate: addToGoal, loading: addToGoalLoading } = useMutation(ADD_TO_GOAL_MUTATION);
+const { mutate: subtractFromGoal, loading: subtractFromGoalLoading } = useMutation(SUBTRACT_FROM_GOAL_MUTATION);
 
 const goals = computed(() => result.value?.goals ?? []);
 const dialogTitle = computed(() => isEditMode.value ? 'Editar Meta' : 'Criar Nova Meta');
+const contributionDialogTitle = computed(() => `Movimentar Meta: ${selectedGoal.value?.name}`);
 
 const resetForm = () => {
   isEditMode.value = false;
@@ -106,6 +112,13 @@ const openEditDialog = (goal: Goal) => {
 };
 
 const openContributionDialog = (goal: Goal) => {
+  contributionMode.value = 'add';
+  selectedGoal.value = goal;
+  isContributionDialogVisible.value = true;
+};
+
+const openSubtractDialog = (goal: Goal) => {
+  contributionMode.value = 'subtract';
   selectedGoal.value = goal;
   isContributionDialogVisible.value = true;
 };
@@ -133,17 +146,17 @@ const handleSubmit = async (formData: Partial<Goal>) => {
 
 const handleContributionSubmit = async (value: number) => {
   if (!selectedGoal.value) return;
+
+  const input = { id: selectedGoal.value._id, value: Math.abs(value) };
+  const mutation = value > 0 ? addToGoal : subtractFromGoal;
+  const successMessage = value > 0 ? 'Valor adicionado com sucesso!' : 'Valor removido com sucesso!';
+
   try {
-    await addToGoal({
-      input: {
-        id: selectedGoal.value._id,
-        value,
-      },
-    });
-    ElNotification({ title: 'Sucesso', message: `R$ ${value.toFixed(2)} adicionados à sua meta!`, type: 'success' });
+    await mutation({ input });
+    ElMessage.success(successMessage);
     isContributionDialogVisible.value = false;
   } catch (e: unknown) {
-    if (e instanceof Error) ElNotification({ title: 'Erro', message: e.message, type: 'error' });
+    if (e instanceof Error) ElMessage.error(e.message);
   }
 };
 

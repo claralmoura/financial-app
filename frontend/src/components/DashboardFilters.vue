@@ -1,58 +1,54 @@
 <template>
   <div class="mb-8 p-4 bg-white dark:bg-gray-800 rounded-lg shadow-md">
     <div class="flex flex-wrap items-center gap-4">
-      <el-radio-group v-model="filterPeriod">
+      <el-radio-group 
+        :model-value="period" 
+        @update:model-value="$emit('update:period', $event)"
+      >
         <el-radio-button value="week">Semana</el-radio-button>
         <el-radio-button value="month">Mês</el-radio-button>
         <el-radio-button value="year">Ano</el-radio-button>
       </el-radio-group>
 
       <el-date-picker
-        v-if="filterPeriod === 'week'"
-        v-model="selectedDate"
+        v-if="period === 'week'"
+        :model-value="date"
         type="week"
         format="[Semana] ww"
         placeholder="Selecione a semana"
         :clearable="false"
+        @update:model-value="$emit('update:date', $event)"
       />
       <el-date-picker
-        v-if="filterPeriod === 'month'"
-        v-model="selectedDate"
+        v-if="period === 'month'"
+        :model-value="date"
         type="month"
         placeholder="Selecione o mês"
         :clearable="false"
+        @update:model-value="$emit('update:date', $event)"
       />
       <el-date-picker
-        v-if="filterPeriod === 'year'"
-        v-model="selectedDate"
+        v-if="period === 'year'"
+        :model-value="date"
         type="year"
         placeholder="Selecione o ano"
         :clearable="false"
+        @update:model-value="$emit('update:date', $event)"
       />
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, watch, onMounted } from 'vue';
-
 type FilterPeriod = 'week' | 'month' | 'year';
 
-const emit = defineEmits<{
-  (e: 'filter-change', filters: { period: FilterPeriod, date: Date }): void;
+defineProps<{
+  period: FilterPeriod;
+  date: Date;
 }>();
 
-const filterPeriod = ref<FilterPeriod>('month');
-const selectedDate = ref(new Date());
-
-const emitFilters = () => {
-  emit('filter-change', {
-    period: filterPeriod.value,
-    date: selectedDate.value,
-  });
-};
-
-watch([filterPeriod, selectedDate], emitFilters);
-
-onMounted(emitFilters);
+defineEmits<{
+  (e: 'update:period', value: FilterPeriod): void;
+  (e: 'update:date', value: Date): void;
+}>();
 </script>

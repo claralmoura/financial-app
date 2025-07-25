@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, ConflictException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import {
@@ -10,6 +10,7 @@ import {
   CreditCardDocument,
 } from 'src/credit-cards/schemas/credit-card.schema';
 import { Cron, CronExpression } from '@nestjs/schedule';
+import { CreateInvoiceInput } from './dto/create-invoice.input';
 
 @Injectable()
 export class CardInvoicesService {
@@ -56,6 +57,27 @@ export class CardInvoicesService {
       'Disparando a rotina de gerenciamento de faturas na inicialização...',
     );
     await this.handleInvoiceManagement();
+  }
+
+  async createManual(
+    userId: string,
+    input: CreateInvoiceInput,
+  ): Promise<CardInvoice> {
+    const existingInvoice = await this.cardInvoiceModel.findOne({
+      creditCardId: input.creditCardId,
+      month: input.month,
+      year: input.year,
+      userId,
+    });
+
+    if (existingInvoice) {
+      throw new ConflictException(
+        'Uma fatura para este cartão e período já existe.',
+      );
+    }
+
+    const newInvoice = new this.cardInvoiceModel({ ...input, userId });
+    return newInvoice.save();
   }
 
   @Cron(CronExpression.EVERY_DAY_AT_3AM, { name: 'invoice_management' })

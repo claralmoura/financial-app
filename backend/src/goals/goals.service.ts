@@ -1,9 +1,17 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Goal, GoalDocument } from './schemas/goal.schema';
 import { CreateGoalInput } from './dto/create-goal.input';
-import { UpdateGoalInput, AddToGoalInput } from './dto/update-goal.input';
+import {
+  UpdateGoalInput,
+  AddToGoalInput,
+  SubtractFromGoalInput,
+} from './dto/update-goal.input';
 
 @Injectable()
 export class GoalsService {
@@ -81,5 +89,27 @@ export class GoalsService {
       );
     }
     return goal;
+  }
+
+  async subtractFromGoal(
+    userId: string,
+    subtractFromGoalInput: SubtractFromGoalInput,
+  ): Promise<Goal> {
+    const { id, value } = subtractFromGoalInput;
+
+    const goal = await this.goalModel.findOne({ _id: id, userId });
+
+    if (!goal) {
+      throw new NotFoundException(`Meta com ID "${id}" não encontrada.`);
+    }
+
+    if (goal.currentValue < value) {
+      throw new BadRequestException(
+        'O valor a ser removido não pode ser maior que o valor atual da meta.',
+      );
+    }
+
+    goal.currentValue -= value;
+    return goal.save();
   }
 }

@@ -3,10 +3,11 @@
     <div class="flex flex-col md:flex-row md:justify-between md:items-center gap-4 mb-6">
       <h2 class="text-2xl font-semibold text-gray-800 dark:text-gray-100 shrink-0">Suas Transações</h2>
       <div class="flex flex-col sm:flex-row gap-4 w-full md:w-auto">
-        <el-input v-model="searchQuery" placeholder="Buscar por descrição..." clearable class="w-full sm:w-56" />
-        <el-select v-model="selectedCategories" multiple clearable placeholder="Filtrar por categoria" class="w-full sm:w-56">
+        <el-input v-model="searchQuery" placeholder="Buscar por descrição..." clearable class="w-full sm:w-40" />
+        <el-select v-model="selectedCategories" multiple clearable placeholder="Filtrar por categoria" class="w-full sm:w-40">
           <el-option v-for="category in categories" :key="category._id" :label="category.name" :value="category._id" />
         </el-select>
+        <el-button @click="$emit('export-transactions')">Exportar</el-button>
         <el-button type="primary" @click="$emit('create-transaction')" class="w-full sm:w-auto">
           <div class="flex items-center gap-2 justify-center">
             <svg :width="20" :height="20" viewBox="0 0 24 24"><path :d="mdiPlus" fill="currentColor" /></svg>
@@ -108,7 +109,7 @@ import { formatDate } from '@/utils/formatters';
 import { ElButton, ElIcon } from 'element-plus';
 
 const props = defineProps<{
-  transactions: Transaction[];
+  transactions: Transaction[] | undefined;
   loading: boolean;
   categories: Category[];
 }>();
@@ -117,6 +118,7 @@ defineEmits<{
   (e: 'create-transaction'): void;
   (e: 'edit-transaction', transaction: Transaction): void;
   (e: 'delete-transaction', id: string): void;
+  (e: 'export-transactions'): void;
 }>();
 
 const searchQuery = ref('');
@@ -132,7 +134,7 @@ const filteredTransactions = computed(() => {
   }
   if (selectedCategories?.value?.length) {
     filtered = filtered.filter(t => 
-      t.categoryId && selectedCategories.value.includes(t.categoryId)
+      t.category._id && selectedCategories.value.includes(t.category._id)
     );
   }
 

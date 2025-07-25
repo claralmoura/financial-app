@@ -5,9 +5,9 @@ export class CategoryEntity {
   @Field(() => ID)
   _id: string;
 
-  @Field()
-  name: string;
+  @Field({ nullable: true })
+  name?: string;
 
-  @Field()
-  type: string;
+  @Field({ nullable: true })
+  type?: string;
 }

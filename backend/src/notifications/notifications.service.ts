@@ -32,7 +32,7 @@ export class NotificationsService {
     private emailService: EmailService,
   ) {}
 
-  @Cron(CronExpression.EVERY_DAY_AT_10AM, {
+  @Cron(CronExpression.EVERY_DAY_AT_9AM, {
     name: 'payment_reminders',
     timeZone: 'America/Fortaleza',
   })

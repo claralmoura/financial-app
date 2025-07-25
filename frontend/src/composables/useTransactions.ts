@@ -1,8 +1,9 @@
 import { computed, type Ref } from 'vue';
-import { useQuery, useMutation } from '@vue/apollo-composable';
-import { TRANSACTIONS_QUERY } from '@/apollo/queries/transactions';
+import { useQuery, useMutation, useLazyQuery } from '@vue/apollo-composable';
+import { TRANSACTIONS_QUERY, EXPORT_TRANSACTIONS_QUERY } from '@/apollo/queries/transactions';
 import { CREATE_TRANSACTION_MUTATION, UPDATE_TRANSACTION_MUTATION, DELETE_TRANSACTION_MUTATION } from '@/apollo/mutations/transactions';
 import type { Transaction } from '@/types';
+import { ElMessage } from 'element-plus';
 
 interface Filters {
   period: 'week' | 'month' | 'year';
@@ -15,6 +16,30 @@ export function useTransactions(activeFilters: Ref<Filters>) {
   const { mutate: createTransaction, loading: createLoading } = useMutation(CREATE_TRANSACTION_MUTATION, { refetchQueries: [{ query: TRANSACTIONS_QUERY }] });
   const { mutate: updateTransaction, loading: updateLoading } = useMutation(UPDATE_TRANSACTION_MUTATION, { refetchQueries: [{ query: TRANSACTIONS_QUERY }] });
   const { mutate: deleteTransaction } = useMutation(DELETE_TRANSACTION_MUTATION, { refetchQueries: [{ query: TRANSACTIONS_QUERY }] });
+
+  const { result: exportResult, load: fetchExportData, loading: exportLoading } = useLazyQuery(EXPORT_TRANSACTIONS_QUERY, undefined, {
+    fetchPolicy: 'network-only',
+  });
+
+  const exportTransactions = async () => {
+    await fetchExportData();
+    const csvData = exportResult.value?.exportTransactions;
+
+    if (csvData) {
+      const blob = new Blob([csvData], { type: 'text/csv;charset=utf-8;' });
+      const link = document.createElement('a');
+      const url = URL.createObjectURL(blob);
+      link.setAttribute('href', url);
+      link.setAttribute('download', 'minhas-transacoes.csv');
+      link.style.visibility = 'hidden';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      ElMessage.success('Exportação concluída!');
+    } else {
+      ElMessage.warning('Nenhuma transação para exportar.');
+    }
+  };
 
   const transactions = computed(() => transactionsResult.value?.transactions ?? []);
 
@@ -131,6 +156,7 @@ export function useTransactions(activeFilters: Ref<Filters>) {
     transactions,
     transactionsLoading,
     filteredIncome,
+    filteredTransactions,
     filteredExpenses,
     balance,
     incomeVsExpensesChartData,
@@ -140,6 +166,8 @@ export function useTransactions(activeFilters: Ref<Filters>) {
     updateTransaction,
     deleteTransaction,
     createLoading,
-    updateLoading
+    updateLoading,
+    exportTransactions,
+    exportLoading,    
   };
 }

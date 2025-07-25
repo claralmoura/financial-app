@@ -17,7 +17,16 @@
           <el-table-column prop="value" label="Valor" sortable>
              <template #default="scope">R$ {{ scope.row.value.toFixed(2) }}</template>
           </el-table-column>
-          <el-table-column prop="category.name" label="Categoria" />
+          <el-table-column label="Categoria" width="150" align="center">
+            <template #default="scope">
+              <el-tag v-if="scope.row.category.name" effect="light" size="small">
+                {{ scope.row.category.name }}
+              </el-tag>
+              <span v-else class="text-xs text-gray-400 italic">
+                (Apagada)
+              </span>
+            </template>
+          </el-table-column>
           <el-table-column prop="dueDate" label="Dia do Venc." align="center" width="150" sortable />
           <el-table-column prop="isActive" label="Status" align="center" width="120">
             <template #default="scope">
@@ -124,7 +133,7 @@ const openEditDialog = (expense: FixedExpense) => {
   form.description = expense.description;
   form.value = expense.value;
   form.dueDate = expense.dueDate;
-  form.categoryId = expense.categoryId;
+  form.categoryId = expense.category?._id || null;
   form.isActive = expense.isActive;
   isDialogVisible.value = true;
 };

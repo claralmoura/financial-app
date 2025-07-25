@@ -1,6 +1,6 @@
 <template>
   <div class="p-4 sm:p-8 font-sans">
-    <header v-if="card" class="mb-8">
+    <header v-if="card" class="mb-8 flex justify-between items-start">
       <div class="flex items-center gap-4">
         <el-icon :size="32" class="text-primary">
           <svg viewBox="0 0 24 24"><path :d="mdiCreditCard" fill="currentColor"/></svg>
@@ -10,6 +10,7 @@
           <p class="text-gray-500">Vencimento dia {{ card.dueDay }} / Fechamento dia {{ card.closingDay }}</p>
         </div>
       </div>
+      <el-button @click="isCreateModalVisible = true">Criar Fatura</el-button>
     </header>
 
     <div v-if="loading" class="text-center text-gray-500">Carregando faturas...</div>
@@ -58,6 +59,12 @@
       </el-tabs>
     </main>
 
+    <CreateInvoiceModal
+      v-model:visible="isCreateModalVisible"
+      :loading="createLoading"
+      @submit="handleCreateInvoice"
+    />
+
     <div v-if="!loading && card && !card.invoices.length" class="text-center text-gray-500 mt-16">
       <el-empty description="Nenhuma fatura encontrada para este cartão." />
     </div>
@@ -67,13 +74,16 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue';
 import { useRoute } from 'vue-router';
-import { useQuery } from '@vue/apollo-composable';
+import { useQuery, useMutation  } from '@vue/apollo-composable';
 import { gql } from 'graphql-tag';
 import { formatDate, formatCurrency } from '@/utils/formatters';
 import type { Transaction, Category } from '../types';
 import { mdiCreditCard } from '@mdi/js';
+import CreateInvoiceModal from '../components/CreateInvoiceModal.vue';
+import { ElMessage } from 'element-plus';
 
 import { CARD_INVOICES_BY_CARD_ID_QUERY } from '../apollo/queries/invoices';
+import { CREATE_INVOICE_MUTATION } from '../apollo/mutations/invoices';
 
 interface CardInvoice {
   _id: string;
@@ -94,10 +104,15 @@ interface CreditCardWithInvoices {
 const route = useRoute();
 const cardId = route.params.id as string;
 const activeInvoiceId = ref<string>('');
+const isCreateModalVisible = ref(false);
 
 const { result, loading } = useQuery<{ cardInvoices: CardInvoice[], creditCard: CreditCardWithInvoices }>(
   CARD_INVOICES_BY_CARD_ID_QUERY, 
   { creditCardId: cardId }
+);
+const { mutate: createInvoice, loading: createLoading } = useMutation(
+  CREATE_INVOICE_MUTATION,
+  { refetchQueries: [{ query: CARD_INVOICES_BY_CARD_ID_QUERY, variables: { creditCardId: cardId } }] }
 );
 
 const card = computed(() => {
@@ -126,5 +141,21 @@ const getInvoiceStatusType = (status: string) => {
 const calculateInvoiceTotal = (transactions: Transaction[] | undefined) => {
   if (!transactions) return 0;
   return transactions.reduce((sum, t) => sum + t.value, 0);
+};
+
+const handleCreateInvoice = async (data: { month: number; year: number }) => {
+  try {
+    await createInvoice({
+      input: {
+        creditCardId: cardId,
+        month: data.month,
+        year: data.year,
+      },
+    });
+    ElMessage.success('Fatura criada com sucesso!');
+    isCreateModalVisible.value = false;
+  } catch (e: any) {
+    ElMessage.error(e.message);
+  }
 };
 </script>

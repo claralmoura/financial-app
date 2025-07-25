@@ -5,7 +5,10 @@
     </header>
 
     <main>
-      <DashboardFilters @filter-change="handleFilterChange" />
+      <DashboardFilters 
+        v-model:period="activeFilters.period"
+        v-model:date="activeFilters.date"
+      />
       
       <DashboardSummary 
         :income="filteredIncome"
@@ -30,15 +33,20 @@
           :chart-data="monthlyTrendChartData"
         />
       </div>
+
+      <div class="mt-10">
+        <GoalsSummary :goals="goals" />
+      </div>
       
       <TransactionsTable
         class="mt-10"
-        :transactions="transactions"
-        :loading="transactionsLoading"
+        :transactions="filteredTransactions"
+        :loading="transactionsLoading || exportLoading"
         :categories="allCategories"
         @create-transaction="openCreateDialog"
         @edit-transaction="openEditDialog"
         @delete-transaction="handleDelete"
+        @export-transactions="handleExport"
       />
     </main>
     
@@ -48,11 +56,11 @@
       :loading="createLoading || updateLoading"
       :is-edit-mode="isEditMode"
       :initial-data="form"
-      @submit="handleSubmit"
-      :income-categories="incomeCategories"
+      :income-categories="incomeCategories"  
       :expense-categories="expenseCategories"
       :open-invoices="openInvoices"
       :credit-cards="allCreditCards"
+      @submit="handleSubmit"
     />
   </div>
 </template>
@@ -60,7 +68,7 @@
 <script setup lang="ts">
 import { ref, reactive, computed } from 'vue';
 import { useRouter } from 'vue-router';
-import { useApolloClient } from '@vue/apollo-composable';
+import { useApolloClient, useQuery } from '@vue/apollo-composable';
 import { useAuthStore } from '../stores/auth';
 import { ElMessage, ElMessageBox } from 'element-plus';
 import type { Transaction } from '../types';
@@ -75,6 +83,7 @@ import BarChart from '../components/BarChart.vue';
 import { useTransactions } from '../composables/useTransactions';
 import { useCategories } from '../composables/useCategories';
 import { useCardsAndInvoices } from '../composables/useCardsAndInvoices';
+import { GOALS_QUERY } from '../apollo/queries/goals';
 
 const router = useRouter();
 const authStore = useAuthStore();
@@ -99,6 +108,7 @@ const activeFilters = ref({
 const { 
   transactions, 
   transactionsLoading,
+  filteredTransactions,
   filteredIncome,
   filteredExpenses,
   balance,
@@ -110,6 +120,8 @@ const {
   deleteTransaction,
   createLoading,
   updateLoading,
+  exportTransactions,
+  exportLoading,
 } = useTransactions(activeFilters);
 
 const { 
@@ -125,10 +137,8 @@ const {
 
 const dialogTitle = computed(() => isEditMode.value ? 'Editar Transação' : 'Adicionar Nova Transação');
 
-const handleFilterChange = (filters: { period: 'week' | 'month' | 'year', date: Date }) => {
-  activeFilters.value.period = filters.period;
-  activeFilters.value.date = filters.date;
-};
+const { result: goalsResult } = useQuery<{ goals: Goal[] }>(GOALS_QUERY);
+const goals = computed(() => goalsResult.value?.goals ?? []);
 
 const resetForm = () => {
   isEditMode.value = false;
@@ -201,6 +211,10 @@ const handleDelete = (id: string) => {
       if (e instanceof Error) ElMessage.error(e.message);
     }
   }).catch(() => { ElMessage.info('Ação cancelada.'); });
+};
+
+const handleExport = () => {
+  exportTransactions();
 };
 
 const handleLogout = () => {

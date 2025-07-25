@@ -16,7 +16,15 @@
           <el-input-number v-model="form.value" :precision="2" :step="10" :min="0" class="w-full" size="large" />
         </el-form-item>
         <el-form-item label="Data">
-          <el-date-picker v-model="form.date" type="date" class="w-full" size="large" format="DD/MM/YYYY" value-format="YYYY-MM-DD" />
+          <el-date-picker
+            v-model="form.date"
+            type="date"
+            class="w-full"
+            size="large"
+            format="DD/MM/YYYY"
+            value-format="YYYY-MM-DD"
+            clearable
+          />
         </el-form-item>
       </div>
       
@@ -42,10 +50,10 @@
       </transition>
 
       <transition name="el-fade-in-linear">
-        <el-form-item v-if="form.type !== 'income'" label="Categoria">
+        <el-form-item v-if="form.type !== 'card_expense'" label="Categoria">
           <el-select v-model="form.categoryId" placeholder="Selecione uma categoria" class="w-full" size="large">
             <el-option
-              v-for="category in expenseCategories"
+              v-for="category in filteredCategories"
               :key="category._id"
               :label="category.name"
               :value="category._id"
@@ -71,7 +79,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch } from 'vue';
+import { ref, watch, computed } from 'vue';
 import type { Transaction, Category, CardInvoice } from '../types';
 
 const props = defineProps<{
@@ -80,6 +88,7 @@ const props = defineProps<{
   loading: boolean;
   isEditMode: boolean;
   initialData?: Partial<Transaction>;
+  incomeCategories: Category[];
   expenseCategories: Category[];
   openInvoices: CardInvoice[];
 }>();
@@ -94,14 +103,21 @@ const form = ref({
   description: '',
   value: 0,
   type: 'expense' as 'income' | 'expense' | 'card_expense',
-  date: new Date().toISOString().split('T')[0],
+  date: new Date().toISOString().split('T')[0] as string | null,
   categoryId: null as string | null,
   cardInvoiceId: null as string | null,
 });
 
+const filteredCategories = computed(() => {
+  if (form.value.type === 'income') {
+    return props.incomeCategories;
+  }
+  return props.expenseCategories;
+});
+
 watch(() => form.value.type, (newType) => {
+  form.value.categoryId = null;
   if (newType !== 'card_expense') form.value.cardInvoiceId = null;
-  if (newType === 'income') form.value.categoryId = null;
 });
 
 watch(() => props.initialData, (newData) => {

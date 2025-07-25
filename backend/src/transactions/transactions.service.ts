@@ -2,6 +2,7 @@ import { Injectable, NotFoundException, Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Cron, CronExpression } from '@nestjs/schedule';
+import { Parser } from 'json2csv';
 import {
   FixedExpense,
   FixedExpenseDocument,
@@ -13,12 +14,10 @@ import {
   Category,
   CategoryDocument,
 } from 'src/categories/schemas/category.schema';
-
 import {
   CardInvoice,
   CardInvoiceDocument,
 } from 'src/card-invoices/schemas/card-invoice.schema';
-
 import {
   CreditCard,
   CreditCardDocument,
@@ -31,8 +30,7 @@ export class TransactionsService {
   constructor(
     @InjectModel(Transaction.name)
     private transactionModel: Model<TransactionDocument>,
-    @InjectModel(Category.name)
-    private categoryModel: Model<CategoryDocument>,
+    @InjectModel(Category.name) private categoryModel: Model<CategoryDocument>,
     @InjectModel(FixedExpense.name)
     private fixedExpenseModel: Model<FixedExpenseDocument>,
     @InjectModel(CardInvoice.name)
@@ -41,15 +39,8 @@ export class TransactionsService {
     private creditCardModel: Model<CreditCardDocument>,
   ) {}
 
-  /**
-   * Busca todas as transações de um usuário e popula manualmente as categorias.
-   */
-  async findAll(userId: string): Promise<any[]> {
-    const transactions = await this.transactionModel
-      .find({ userId })
-      .lean()
-      .exec();
-    if (!transactions?.length) return [];
+  private async _populateTransactions(transactions: any[]): Promise<any[]> {
+    if (!transactions || transactions.length === 0) return [];
 
     const categoryIds = [
       ...new Set(
@@ -103,6 +94,14 @@ export class TransactionsService {
     }));
   }
 
+  async findAll(userId: string): Promise<any[]> {
+    const transactions = await this.transactionModel
+      .find({ userId })
+      .lean()
+      .exec();
+    return this._populateTransactions(transactions);
+  }
+
   async create(
     userId: string,
     createTransactionInput: CreateTransactionInput,
@@ -118,11 +117,11 @@ export class TransactionsService {
   ): Promise<Transaction> {
     const { id, ...updateData } = updateTransactionInput;
     const transaction = await this.transactionModel
-      .findOneAndUpdate({ _id: id, userId: userId }, updateData, { new: true })
+      .findOneAndUpdate({ _id: id, userId }, updateData, { new: true })
       .exec();
     if (!transaction) {
       throw new NotFoundException(
-        `Transação não encontrada ou você não tem permissão.`,
+        'Transação não encontrada ou você não tem permissão.',
       );
     }
     return transaction;
@@ -130,17 +129,49 @@ export class TransactionsService {
 
   async remove(userId: string, id: string): Promise<Transaction> {
     const transaction = await this.transactionModel
-      .findOneAndDelete({
-        _id: id,
-        userId: userId,
-      })
+      .findOneAndDelete({ _id: id, userId })
       .exec();
     if (!transaction) {
       throw new NotFoundException(
-        `Transação não encontrada ou você não tem permissão.`,
+        'Transação não encontrada ou você não tem permissão.',
       );
     }
     return transaction;
+  }
+
+  async exportToCsv(userId: string): Promise<string> {
+    const rawTransactions = await this.transactionModel
+      .find({ userId })
+      .lean()
+      .exec();
+    const transactions = await this._populateTransactions(rawTransactions);
+
+    if (!transactions?.length) {
+      return '';
+    }
+
+    const formattedData = transactions.map((t) => ({
+      Data: new Date(Number(t.date)).toLocaleDateString('pt-BR'),
+      Descricao: t.description,
+      Valor: t.value,
+      Tipo:
+        t.type === 'income'
+          ? 'Receita'
+          : t.type === 'expense'
+            ? 'Despesa'
+            : 'Cartão de Crédito',
+      Categoria: t.category?.name || 'N/A',
+      Fonte:
+        t.type === 'card_expense'
+          ? t.cardInvoice?.creditCard?.name || 'Cartão'
+          : 'N/A',
+    }));
+
+    const fields = ['Data', 'Descricao', 'Valor', 'Tipo', 'Categoria', 'Fonte'];
+    const json2csvParser = new Parser({ fields });
+    const csv = json2csvParser.parse(formattedData);
+
+    return csv;
   }
 
   @Cron(CronExpression.EVERY_1ST_DAY_OF_MONTH_AT_MIDNIGHT, {
@@ -169,7 +200,7 @@ export class TransactionsService {
       const dueDate = new Date(currentYear, currentMonth, expense.dueDate);
       const existingTransaction = await this.transactionModel.findOne({
         userId: expense.userId,
-        categoryId: expense.categoryId,
+        description: expense.description,
         value: expense.value,
         $expr: {
           $and: [

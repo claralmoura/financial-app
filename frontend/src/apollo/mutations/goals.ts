@@ -23,3 +23,9 @@ export const ADD_TO_GOAL_MUTATION = gql`
     addToGoal(input: $input) { _id currentValue }
   }
 `;
+
+export const SUBTRACT_FROM_GOAL_MUTATION = gql`
+  mutation SubtractFromGoal($input: SubtractFromGoalInput!) {
+    subtractFromGoal(input: $input) { _id currentValue }
+  }
+`;

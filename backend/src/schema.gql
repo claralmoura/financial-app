@@ -22,8 +22,8 @@ type CardInvoiceEntity {
 
 type CategoryEntity {
   _id: ID!
-  name: String!
-  type: String!
+  name: String
+  type: String
 }
 
 input CreateCategoryInput {
@@ -47,6 +47,12 @@ input CreateFixedExpenseInput {
 input CreateGoalInput {
   name: String!
   targetValue: Float!
+}
+
+input CreateInvoiceInput {
+  creditCardId: ID!
+  month: Int!
+  year: Int!
 }
 
 input CreateTransactionInput {
@@ -91,7 +97,7 @@ scalar DateTime
 
 type FixedExpenseEntity {
   _id: ID!
-  category: CategoryEntity!
+  category: CategoryEntity
   description: String!
   dueDate: Int!
   isActive: Boolean!
@@ -120,6 +126,7 @@ type Mutation {
   createCreditCard(input: CreateCreditCardInput!): CreditCardEntity!
   createFixedExpense(input: CreateFixedExpenseInput!): FixedExpenseEntity!
   createGoal(input: CreateGoalInput!): GoalEntity!
+  createManualInvoice(input: CreateInvoiceInput!): CardInvoiceEntity!
   createTransaction(input: CreateTransactionInput!): TransactionEntity!
   deleteTransaction(id: ID!): TransactionEntity!
   forgotPassword(email: String!): ForgotPasswordResponse!
@@ -130,6 +137,7 @@ type Mutation {
   removeFixedExpense(id: ID!): FixedExpenseEntity!
   removeGoal(id: ID!): GoalEntity!
   resetPassword(input: ResetPasswordInput!): ResetPasswordResponse!
+  subtractFromGoal(input: SubtractFromGoalInput!): GoalEntity!
   updateCategory(input: UpdateCategoryInput!): CategoryEntity!
   updateCreditCard(input: UpdateCreditCardInput!): CreditCardEntity!
   updateFixedExpense(input: UpdateFixedExpenseInput!): FixedExpenseEntity!
@@ -143,6 +151,7 @@ type Query {
   categories: [CategoryEntity!]!
   creditCard(id: ID!): CreditCardEntity!
   creditCards: [CreditCardEntity!]!
+  exportTransactions: String!
   fixedExpenses: [FixedExpenseEntity!]!
   goals: [GoalEntity!]!
   me: UserEntity!
@@ -156,6 +165,11 @@ input ResetPasswordInput {
 
 type ResetPasswordResponse {
   message: String!
+}
+
+input SubtractFromGoalInput {
+  id: ID!
+  value: Float!
 }
 
 type TransactionEntity {
