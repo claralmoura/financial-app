@@ -1,49 +1,65 @@
-# App de Finanças Pessoais
+# App Finanças Pessoais - Minhas Finanças v1.0
 
 ![Status: Concluído](https://img.shields.io/badge/status-conclu%C3%ADdo-brightgreen)
 
-Aplicação full-stack de gerenciamento financeiro pessoal, desenvolvida para praticar e demonstrar habilidades com a stack moderna de JavaScript/TypeScript.
+Aplicação full-stack de gerenciamento financeiro pessoal, desenvolvida com NestJS, Vue.js 3, GraphQL e MongoDB. O projeto abrange desde a autenticação de usuários até dashboards interativos com gráficos e filtros dinâmicos.
 
 ---
 
-## ✨ Funcionalidades
+### 🚀 Acesse a Aplicação
 
-- **Autenticação de Usuário:** Sistema completo com registro e login usando tokens JWT.
-- **Dashboard Interativo:** Visão geral com cards de resumo (receitas, despesas, saldo) e gráficos reativos.
-- **CRUD de Transações:** Crie, leia, atualize e exclua transações financeiras.
-- **CRUD de Categorias:** Gerencie categorias personalizadas para receitas e despesas.
-- **Filtros Dinâmicos:** Filtre o dashboard por período (semana, mês, ano) e as transações por categoria ou descrição.
-- **Visualização de Dados:** Gráficos de pizza e de barras (com Chart.js) para análise financeira.
-- **Design Responsivo:** Interface adaptável para desktop e dispositivos móveis.
+* **Frontend (Vercel):** [https://financial-app-ten-smoky.vercel.app/](https://financial-app-ten-smoky.vercel.app/)
+* **Backend (GraphQL Playground):** [https://financial-app-backend-st78.onrender.com](https://financial-app-backend-st78.onrender.com)
+
+---
+
+### ✨ Demonstração
+
+![Demonstração do App Finanças](screenshots/demo.gif)
+
+> _🎥 | Assista à demonstração completa **[no YouTube]([URL_DO_SEU_VIDEO_AQUI](https://youtu.be/La8h5kswoDk))**_
+
+---
+
+### 🖼️ Screenshots
+
+| Tela de Login | Dashboard (Tema Claro) |
+| :-----------: | :--------------------: |
+| ![Tela de Login](screenshots/login.png) | ![Dashboard Claro](screenshots/dashboard-light.png) |
+
+| Dashboard (Tema Escuro) | Gerenciamento de Categorias |
+| :-----------: | :--------------------: |
+| ![Dashboard Escuro](screenshots/dashboard-dark.png) | ![Categorias](screenshots/categories.png) |
+
+---
+
+## 📋 Funcionalidades
+
+-   **Autenticação Completa:** Registro, Login (JWT), Perfil de Usuário e fluxo de Redefinição de Senha por e-mail.
+-   **Dashboard Interativo:** Visão geral com cards de resumo, gráficos reativos e filtros dinâmicos por período (semana, mês, ano), categoria e descrição.
+-   **Gestão de Transações:** CRUD completo para receitas, despesas e gastos no cartão.
+-   **Gestão de Categorias:** CRUD completo para categorias personalizadas.
+-   **Gestão de Gastos Fixos:** CRUD para despesas recorrentes, com geração automática de transações mensais.
+-   **Gestão de Cartões de Crédito:** CRUD para cartões, com geração e fechamento automático de faturas mensais.
+-   **Visualização de Faturas:** Tela dedicada para visualizar os detalhes e transações de cada fatura.
+-   **Metas Financeiras:** Crie e acompanhe o progresso de suas metas de economia.
+-   **Tema Claro e Escuro (Dark Mode):** Seletor de tema com persistência.
+-   **Exportação para CSV:** Exporte suas transações filtradas com um clique.
+-   **Lembretes por E-mail:** Rotina automática no backend para notificar sobre contas a vencer.
+-   **Design Responsivo:** Interface adaptada para desktop e dispositivos móveis.
 
 ---
 
 ## 🛠️ Stack de Tecnologia
 
-**Frontend:**
-- Vue.js 3 (Composition API & `<script setup>`)
-- Vite
-- TypeScript
-- Tailwind CSS
-- Element Plus
-- Pinia (Gerenciamento de Estado)
-- Vue Router
-- Apollo Client (GraphQL)
-- Chart.js
+**Frontend:** Vue.js 3, Vite, TypeScript, Tailwind CSS, Element Plus, Pinia, Vue Router, Apollo Client, Chart.js, VueUse.
 
-**Backend:**
-- NestJS
-- TypeScript
-- GraphQL com Apollo Server
-- Mongoose
-- Passport.js (Autenticação com JWT)
+**Backend:** NestJS, TypeScript, GraphQL, Apollo Server, Mongoose, Passport.js, Nodemailer, Json2Csv.
 
-**Banco de Dados & Deploy:**
-- **Banco de Dados:** MongoDB Atlas
-- **Deploy Backend:** Render
-- **Deploy Frontend:** Vercel
+**Banco de Dados & Infra:** MongoDB Atlas, Render/Fly.io (Backend), Vercel (Frontend), Docker.
 
 ---
+
 
 ## 🚀 Como Rodar Localmente
 
@@ -60,7 +76,7 @@ Aplicação full-stack de gerenciamento financeiro pessoal, desenvolvida para pr
    ```
    - Renomeie `.env.example` para `.env` e preencha as variáveis `DATABASE_URL` e `JWT_SECRET`.
    ```bash
-   npm run start:dev
+   npm run dev
    ```
 
 3. **Setup do Frontend:**
@@ -72,3 +88,12 @@ Aplicação full-stack de gerenciamento financeiro pessoal, desenvolvida para pr
    ```bash
    npm run dev
    ```
+
+---
+
+## ✒️ Autoria
+
+Feito com ❤️ por Clara Livia.
+
+[![LinkedIn](https://img.shields.io/badge/LinkedIn-0077B5?style=for-the-badge&logo=linkedin&logoColor=white)](https://www.linkedin.com/in/claralivia/)
+[![GitHub](https://img.shields.io/badge/GitHub-181717?style=for-the-badge&logo=github&logoColor=white)](https://github.com/claralmoura)
