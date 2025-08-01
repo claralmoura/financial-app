@@ -17,7 +17,7 @@ Aplicação full-stack de gerenciamento financeiro pessoal, desenvolvida com Nes
 
 ![Demonstração do App Finanças](screenshots/demo.gif)
 
-> _🎥 | Assista à demonstração completa **[no YouTube]([URL_DO_SEU_VIDEO_AQUI](https://youtu.be/La8h5kswoDk))**_
+_🎥 | Assista à demonstração completa **[no YouTube]([URL_DO_SEU_VIDEO_AQUI](https://youtu.be/La8h5kswoDk))**_
 
 ---
 
